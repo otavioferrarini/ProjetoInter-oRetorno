@@ -1,0 +1,16 @@
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/RastreamentoCoronavirus
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/RastreamentoCoronavirus.deps.json
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/RastreamentoCoronavirus.runtimeconfig.json
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/RastreamentoCoronavirus.runtimeconfig.dev.json
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/RastreamentoCoronavirus.dll
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/RastreamentoCoronavirus.pdb
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/Npgsql.dll
+/home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.csprojAssemblyReference.cache
+/home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.AssemblyInfoInputs.cache
+/home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.AssemblyInfo.cs
+/home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.csproj.CoreCompileInputs.cache
+/home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.csproj.CopyComplete
+/home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.dll
+/home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.pdb
+/home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.genruntimeconfig.cache
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/NodaTime.dll
