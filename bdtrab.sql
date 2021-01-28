@@ -56,5 +56,5 @@ CREATE TABLE tel_estabel(
 	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ) 
 );
 
-ALTER TABLE usuario ADD COLUMN CodCheckin serial NOT NULL
+ALTER TABLE usuario ADD COLUMN CodCheckin serial
 REFERENCES checkin(CodCheckin);
