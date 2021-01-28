@@ -26,7 +26,7 @@ CREATE TABLE checkin(
 	CodCheckin serial PRIMARY KEY NOT NULL,
 	CPF char(11) NOT NULL,
 	CNPJ char(14) NOT NULL,
-	Data date,
+	Data date NOT NULL,
 	Teste char(8) NOT NULL,
 	FOREIGN KEY (CPF) REFERENCES usuario(CPF),
 	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ)
@@ -35,8 +35,10 @@ CREATE TABLE reportado(
 	CPF char(11) NOT NULL,
 	CNPJ char(14) NOT NULL,
 	Data date NOT NULL,
+	CodCheckin serial NOT NULL,
 	FOREIGN KEY (CPF) REFERENCES usuario(CPF),
 	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ),
+	FOREIGN KEY (CodCheckin) REFERENCES checkin(CodCheckin),
 	CONSTRAINT cod_rep PRIMARY KEY (CPF, CNPJ)
 );
 CREATE TABLE tel_usuario(
@@ -53,3 +55,6 @@ CREATE TABLE tel_estabel(
 	CONSTRAINT tel_es PRIMARY KEY (CNPJ,IDtelefone),
 	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ) 
 );
+
+ALTER TABLE usuario ADD COLUMN CodCheckin serial NOT NULL
+REFERENCES checkin(CodCheckin);
