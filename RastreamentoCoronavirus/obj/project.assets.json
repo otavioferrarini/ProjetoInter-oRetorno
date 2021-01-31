@@ -26,6 +26,19 @@
           "lib/netcoreapp3.1/Npgsql.dll": {}
         }
       },
+      "Npgsql.NodaTime/5.0.2": {
+        "type": "package",
+        "dependencies": {
+          "NodaTime": "3.0.1",
+          "Npgsql": "5.0.2"
+        },
+        "compile": {
+          "lib/netstandard2.0/Npgsql.NodaTime.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Npgsql.NodaTime.dll": {}
+        }
+      },
       "System.Runtime.CompilerServices.Unsafe/4.7.1": {
         "type": "package",
         "compile": {
@@ -72,6 +85,20 @@
         "postgresql.png"
       ]
     },
+    "Npgsql.NodaTime/5.0.2": {
+      "sha512": "8y1V4fEKdzCW0YkfR5E2cTVgv3IzBgnXWreEcbEuk11NPVcSoSZb1jCr69DfVlGGuMggvzGX93UnlSsnbF6mZQ==",
+      "type": "package",
+      "path": "npgsql.nodatime/5.0.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Npgsql.NodaTime.dll",
+        "lib/netstandard2.0/Npgsql.NodaTime.xml",
+        "npgsql.nodatime.5.0.2.nupkg.sha512",
+        "npgsql.nodatime.nuspec",
+        "postgresql.png"
+      ]
+    },
     "System.Runtime.CompilerServices.Unsafe/4.7.1": {
       "sha512": "zOHkQmzPCn5zm/BH+cxC1XbUS3P4Yoi3xzW7eRgVpDR2tPGSzyMZ17Ig1iRkfJuY0nhxkQQde8pgePNiA7z7TQ==",
       "type": "package",
@@ -106,7 +133,8 @@
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
       "NodaTime >= 3.0.5",
-      "Npgsql >= 5.0.2"
+      "Npgsql >= 5.0.2",
+      "Npgsql.NodaTime >= 5.0.2"
     ]
   },
   "packageFolders": {
@@ -149,6 +177,10 @@
             "version": "[3.0.5, )"
           },
           "Npgsql": {
+            "target": "Package",
+            "version": "[5.0.2, )"
+          },
+          "Npgsql.NodaTime": {
             "target": "Package",
             "version": "[5.0.2, )"
           }

@@ -9,7 +9,8 @@
       "RastreamentoCoronavirus/1.0.0": {
         "dependencies": {
           "NodaTime": "3.0.5",
-          "Npgsql": "5.0.2"
+          "Npgsql": "5.0.2",
+          "Npgsql.NodaTime": "5.0.2"
         },
         "runtime": {
           "RastreamentoCoronavirus.dll": {}
@@ -37,6 +38,18 @@
           }
         }
       },
+      "Npgsql.NodaTime/5.0.2": {
+        "dependencies": {
+          "NodaTime": "3.0.5",
+          "Npgsql": "5.0.2"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Npgsql.NodaTime.dll": {
+            "assemblyVersion": "5.0.2.0",
+            "fileVersion": "5.0.2.0"
+          }
+        }
+      },
       "System.Runtime.CompilerServices.Unsafe/4.7.1": {}
     }
   },
@@ -59,6 +72,13 @@
       "sha512": "sha512-bqsG+0t6+c7nfpunu08HkjeRZCI2g8EbXNtWUHsnFlDzjx0zsLkvzfByiHuYo9a74CMKR9RmxRu7HiPGCE/EvQ==",
       "path": "npgsql/5.0.2",
       "hashPath": "npgsql.5.0.2.nupkg.sha512"
+    },
+    "Npgsql.NodaTime/5.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8y1V4fEKdzCW0YkfR5E2cTVgv3IzBgnXWreEcbEuk11NPVcSoSZb1jCr69DfVlGGuMggvzGX93UnlSsnbF6mZQ==",
+      "path": "npgsql.nodatime/5.0.2",
+      "hashPath": "npgsql.nodatime.5.0.2.nupkg.sha512"
     },
     "System.Runtime.CompilerServices.Unsafe/4.7.1": {
       "type": "package",

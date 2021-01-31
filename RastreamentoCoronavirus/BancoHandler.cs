@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Npgsql;
 using NodaTime;
+using Npgsql.NodaTime;
 
 namespace RastreamentoCoronavirus
 {
@@ -20,6 +21,12 @@ namespace RastreamentoCoronavirus
 
         //a tabela estabelecimento, pra nao ocorrer ambiguidade ou erro de escrita nos metodos.
         public readonly string tabelaEstabelecimento = "estabelecimento";
+
+        //a tabela checkin, pra nao ocorrer ambiguidade ou erro de escrita nos metodos.
+        public readonly string tabelaCheckin = "checkin";
+
+        //a tabela reportado, pra nao ocorrer ambiguidade ou erro de escrita nos metodos.
+        public readonly string tabelaReportado = "reportado";
         
         //o modo update, pra nao ocorrer ambiguidade ou erro de escrita no metodo edicao.
         public readonly string modoUpdate = "UPDATE";
@@ -27,12 +34,14 @@ namespace RastreamentoCoronavirus
          //o modo delete, pra nao ocorrer ambiguidade ou erro de escrita no metodo edicao.
         public readonly string modoDelete = "DELETE";
         
-        //a tabela tel_usuario, pra nao ocorrer ambiguidade ou erro de escrita nos metodo telefone.
+        //a tabela tel_usuario, pra nao ocorrer ambiguidade ou erro de escrita no metodo telefone.
         public readonly string telUsuario = "tel_usuario";
         
-        //a tabela tel_estabel, pra nao ocorrer ambiguidade ou erro de escrita nos metodo telefone.
+        //a tabela tel_estabel, pra nao ocorrer ambiguidade ou erro de escrita no metodo telefone.
         public readonly string telEstabelecimento = "tel_estabel";
 
+        
+        
         /*metodo para realizacao do cadastro nas tabelas, tanto na usuario quanto na estabelecimento,
           ja que elas tem a mesma estrutura. usa uma lista para receber os dados.*/
         public void Cadastro(string tabela, List<string> vals, NpgsqlConnection conn){
@@ -65,7 +74,7 @@ namespace RastreamentoCoronavirus
 
         //metodo util para receber todos os CPFs ja registrados. retorna uma lista.
         public List<string> GetCPFs(NpgsqlConnection conn){
-            using (NpgsqlCommand comando = new NpgsqlCommand("SELECT cpf FROM usuario", conn))
+            using (NpgsqlCommand comando = new NpgsqlCommand(@"SELECT cpf FROM usuario", conn))
             using (NpgsqlDataReader reader = comando.ExecuteReader()){
                 List<string> cpfs = new List<string>();
                 while(reader.Read()){
@@ -77,7 +86,7 @@ namespace RastreamentoCoronavirus
 
         //metodo util para receber todos os CNPJs ja registrados. retorna uma lista.
         public List<string> GetCNPJs(NpgsqlConnection conn){
-            using (NpgsqlCommand comando = new NpgsqlCommand("SELECT cnpj FROM estabelecimento", conn))
+            using (NpgsqlCommand comando = new NpgsqlCommand(@"SELECT cnpj FROM estabelecimento", conn))
             using (NpgsqlDataReader reader = comando.ExecuteReader()){
                 List<string> cpfs = new List<string>();
                 while(reader.Read()){
@@ -87,15 +96,18 @@ namespace RastreamentoCoronavirus
             }
         }
 
-        //metodo pra registrar na tabela checkin, falta implementar a data, no momento a data sempre é enviada nula.
+        //metodo pra registrar na tabela checkin, agora com a data.
         public void Checkin(string cpf, List<string> vci, NpgsqlConnection conn){
+            conn.TypeMapper.UseNodaTime();
+            string[] data = vci[1].Split('-', 3);
+            LocalDate dataComp = new LocalDate(int.Parse(data[0]), int.Parse(data[1]), int.Parse(data[2]));
             string copyfrom = "COPY checkin (\"cpf\", \"cnpj\", \"data\", \"teste\") FROM STDIN (FORMAT BINARY)";
             using (var writer = conn.BeginBinaryImport(copyfrom)){
                 writer.StartRow();
                 writer.Write(cpf);
                 writer.Write(vci[0]);
-                writer.WriteNull();
-                writer.Write(vci[1]);
+                writer.Write(dataComp);
+                writer.Write(vci[2]);
                 writer.Complete();
                 Console.WriteLine("Cadastrado!");
             }
@@ -105,23 +117,40 @@ namespace RastreamentoCoronavirus
           retorna um dicionario com um cpf em risco como chave e a razao social do local como valor.
           falta implementar a funcionalidade da data.*/
         public Dictionary<string,string> ChecaRisco(NpgsqlConnection conn){
-            List<string> cnpj = GetCNPJs(conn);
             Dictionary<string, string> emrisco = new Dictionary<string, string>();
-            foreach(string v in cnpj){
-                string strcmd = "WITH localcont AS (SELECT cnpj FROM checkin WHERE (teste = 'Positivo') AND (cnpj = '" + v + "')) SELECT c.cpf, e.RazaoSocial FROM checkin AS c LEFT JOIN estabelecimento AS e ON c.cnpj = e.cnpj WHERE (c.cnpj = (SELECT cnpj FROM localcont) AND (c.teste = 'Negativo'));";
-                using (NpgsqlCommand comando = new NpgsqlCommand(strcmd, conn))
-                using (NpgsqlDataReader reader = comando.ExecuteReader()){
-                    while(reader.Read()){
-                        if(!(emrisco.ContainsKey(reader.GetString(0)))) 
-                            emrisco.Add(reader.GetString(0), reader.GetString(1));
-                    }
+            string strcmd = @"WITH localcont AS (SELECT cnpj FROM checkin WHERE (teste = 'Positivo'))
+                SELECT c.cpf, e.RazaoSocial, l.cnpj
+                FROM checkin c LEFT JOIN estabelecimento e 
+                ON c.cnpj = e.cnpj 
+                JOIN localcont l
+                ON l.cnpj = c.cnpj
+                WHERE (c.Teste = 'Negativo');";
+            using (NpgsqlCommand comando = new NpgsqlCommand(strcmd, conn))
+            using (NpgsqlDataReader reader = comando.ExecuteReader()){
+                while(reader.Read()){
+                    if(!(emrisco.ContainsKey(reader.GetString(0)))) 
+                        emrisco.Add(reader.GetString(0), reader.GetString(1));
                 }
             }
             return emrisco;
 
         }
 
-        //public void reportar() //ainda não implementado
+        public void Reportar(List<string> vals, NpgsqlConnection conn){
+            conn.TypeMapper.UseNodaTime();
+            string[] data = vals[2].Split('-', 3);
+            LocalDate dataComp = new LocalDate(int.Parse(data[0]), int.Parse(data[1]), int.Parse(data[2]));
+            string copyfrom = "COPY reportado (\"cpf\", \"cnpj\", \"data\", codcheckin) FROM STDIN (FORMAT BINARY)";
+            using (var writer = conn.BeginBinaryImport(copyfrom)){
+                writer.StartRow();
+                writer.Write(vals[0]);
+                writer.Write(vals[1]);
+                writer.Write(dataComp);
+                writer.Write(int.Parse(vals[3]), NpgsqlTypes.NpgsqlDbType.Integer);
+                writer.Complete();
+                Console.WriteLine("Cadastrado!");
+            }
+        }
 
         /*metodo que permite executar um update de uma coluna de um registro, 
           usando a coluna afetada e um novo valor para ela, e uma condicao, caso necessario. 
@@ -134,13 +163,13 @@ namespace RastreamentoCoronavirus
                 if(modo == "UPDATE"){
                     strcmd = "UPDATE " + tabela + " SET " + col + " = " + "'" + val + "'" + " WHERE " + cond + ";";
                     
-                    comando.CommandText = strcmd;
+                    comando.CommandText = @strcmd;
 
                 }
                 else if(modo == "DELETE"){
                     strcmd = "DELETE FROM " + tabela + " WHERE " + cond + ";";
 
-                    comando.CommandText = strcmd;
+                    comando.CommandText = @strcmd;
                 }
 
                 int rows = comando.ExecuteNonQuery();
@@ -150,30 +179,56 @@ namespace RastreamentoCoronavirus
         
         /*metodo para listar uma tabela inteira, retorna uma lista com cada valor sendo o registro de uma coluna da tabela.
           caso o registro neja nulo, o registro vai pra lista como "NULL"*/
-        public List<string> Listagem(string tabela, NpgsqlConnection conn){
-            string strcmd = "SELECT * FROM " + tabela + ";";           
+        public Dictionary<int, List<string>> Listagem(string tabela, NpgsqlConnection conn){
+            Dictionary<int, List<string>> dout = new Dictionary<int, List<string>>();
+            string strcmd = "SELECT * FROM " + tabela + ";";
+
+            dout.Add(0, new List<string>());
+            dout.Add(1, new List<string>());
+            dout.Add(2, new List<string>());
+            dout.Add(3, new List<string>());
+            dout.Add(4, new List<string>());
+            dout.Add(5, new List<string>());
+            dout.Add(6, new List<string>());
+            dout.Add(7, new List<string>());
+            dout.Add(8, new List<string>());
+
             using (NpgsqlCommand comando = new NpgsqlCommand(strcmd, conn))
             using (NpgsqlDataReader reader = comando.ExecuteReader()){
-                List<string> lout = new List<string>();
                 while(reader.Read()){
-                    lout.Add(reader.GetString(0));//not null
-                    lout.Add(reader.GetString(1));//not null
-                    if(reader.IsDBNull(2)) lout.Add("NULL");
-                    else lout.Add(reader.GetString(2));
-                    if(reader.IsDBNull(3)) lout.Add("NULL");
-                    else lout.Add(reader.GetString(3));
-                    if(reader.IsDBNull(4)) lout.Add("NULL");
-                    else lout.Add(reader.GetString(4));
-                    lout.Add(reader.GetString(5));//not null
-                    if(reader.IsDBNull(6)) lout.Add("NULL");
-                    else lout.Add(reader.GetString(6));
-                    if(reader.IsDBNull(7)) lout.Add("NULL");
-                    else lout.Add(reader.GetString(7));
-                    if(reader.IsDBNull(8)) lout.Add("NULL");
-                    else lout.Add(reader.GetString(8));
+                    dout[0].Add(reader.GetString(0));//not null
+                    dout[1].Add(reader.GetString(1));//not null
+                    if(reader.IsDBNull(2)) dout[2].Add("NULL");
+                    else dout[2].Add(reader.GetString(2));
+                    if(reader.IsDBNull(3)) dout[3].Add("NULL");
+                    else dout[3].Add(reader.GetString(3));
+                    if(reader.IsDBNull(4)) dout[4].Add("NULL");
+                    else dout[4].Add(reader.GetString(4));
+                    dout[5].Add(reader.GetString(5));//not null
+                    if(reader.IsDBNull(6)) dout[6].Add("NULL");
+                    else dout[6].Add(reader.GetString(6));
+                    if(reader.IsDBNull(7)) dout[7].Add("NULL");
+                    else dout[7].Add(reader.GetString(7));
+                    if(reader.IsDBNull(8)) dout[8].Add("NULL");
+                    else dout[8].Add(reader.GetString(8));
                 }
-                return lout;
+                return dout;
             }
         }
+
+        public Dictionary<string,int> GetCodCheckins(NpgsqlConnection conn){
+            Dictionary<string,int> dout = new Dictionary<string,int>();
+            string strcmd = "SELECT u.cpf, c.codcheckin FROM usuario as u JOIN checkin as c on u.cpf = c.cpf;";
+            using (NpgsqlCommand cmd = new NpgsqlCommand(strcmd, conn))
+            using (NpgsqlDataReader reader = cmd.ExecuteReader()){
+                while(reader.Read()){
+                    if (reader.IsDBNull(0)) dout.Add("NULL", 0);
+                    else dout.Add(reader.GetString(0), reader.GetInt32(1));   
+                }
+            }
+            return dout;
+        }
+        //public Dictionary<int,string> Positivos??(){}
+        
     }
 }

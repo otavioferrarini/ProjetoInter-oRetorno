@@ -16,7 +16,11 @@ namespace RastreamentoCoronavirus
                 using (conexao){
                     conexao.Open();
 
-                    Console.WriteLine("TESTES DOS MÉTODOS: \n");
+                    //exclusão dos registros de 14 ou mais dias atras.
+                    //banco.Edicao(banco.tabelaCheckin, banco.modoDelete, "", "", "now() + interval '14 days' >= data", conexao);
+
+
+                    /*Console.WriteLine("TESTES DOS MÉTODOS: \n");
 
                     vals.Add("12948302817");
                     vals.Add("ola amigo");
@@ -51,64 +55,82 @@ namespace RastreamentoCoronavirus
 
                     banco.Telefone(banco.telUsuario, banco.GetCPFs(conexao)[0], vals, conexao);
 
-                    vals.Clear();
-
-                    var cpfs = banco.GetCPFs(conexao);
-                    var cnpjs = banco.GetCNPJs(conexao);
-                    
-                    vals.Add(cnpjs[0]);
-                    vals.Add("Negativo");
-
-                    banco.Checkin(cpfs[0], vals, conexao);
-
-                    vals.Clear();
-
-                    vals.Add(cnpjs[0]);
-                    vals.Add("Positivo");
-
-                    banco.Checkin(cpfs[0], vals, conexao);
-
-                    vals.Clear();
+                    vals.Clear();*/
 
                     foreach(KeyValuePair<string,string> v in banco.ChecaRisco(conexao)){
                         Console.WriteLine("CPF do usuario em risco: {0} Nome do local contaminado: {1}", v.Key, v.Value);
                     }
 
-                    banco.Edicao(banco.tabelaUsuario, banco.modoUpdate, "nome", "novonome", "cpf = '11111111111'", conexao);
-                    //banco.Edicao(banco.tabelaEstabelecimento, banco.modoDelete, "", "", "cnpj = \'" + cnpjs[0] + "\'", conexao);
+                    /*var cpfs = banco.GetCPFs(conexao);
+                    var cnpjs = banco.GetCNPJs(conexao);
 
-                    var listg = banco.Listagem(banco.tabelaUsuario, conexao);
-                    Console.WriteLine(listg.Count);
+                    var ccin = banco.GetCodCheckins(conexao);
+
+                    vals.Add(cpfs[0]);
+                    vals.Add(cnpjs[2]);
+                    vals.Add("2021-01-15");
+                    if(ccin.ContainsKey(cpfs[0])){
+                        vals.Add(ccin[cpfs[0]].ToString());
+                        banco.Reportar(vals, conexao);
+                    }*/
+                    
+                    /*vals.Add(cnpjs[3]);
+                    vals.Add("2021-01-13");
+                    vals.Add("Positivo");
+
+                    banco.Checkin(cpfs[3], vals, conexao);
+
+                    vals.Clear();
+
+                    
+
+                    vals.Clear();
+
+                    vals.Add(cnpjs[2]);
+                    vals.Add("2021-01-19");
+                    vals.Add("Positivo");
+
+                    banco.Checkin(cpfs[4], vals, conexao);
+
+                    vals.Clear();*/
+
+                    
+
+                    //banco.Edicao(banco.tabelaUsuario, banco.modoUpdate, "nome", "novonome", "cpf = '11111111111'", conexao);
+                    //banco.Edicao("checkin", banco.modoDelete, "", "", "now() + interval \'14 days\' >= data", conexao);
+
+                    //var listg = banco.Listagem(banco.tabelaUsuario, conexao);
+                    
 
                     /*gambiarra pra tirar os valores da lista. a linha do cpf sempre vai ter um cpf, 
                       seguindo a formula no indice da lista, assim como as outras linhas.
                       deve ter um jeito com a propria classe da lista de fazer isso de forma melhor... vou ver se acho algo*/
-                    for(int i = 0;i < listg.Count/9;i++){
-                        Console.WriteLine("CPF: " + listg[(9*i)]);
-                        Console.WriteLine("nome: " + listg[(9*i) + 1]);
-                        Console.WriteLine("rua: " + listg[(9*i) + 2]);
-                        Console.WriteLine("n: " + listg[(9*i) + 3]);
-                        Console.WriteLine("bairro: " + listg[(9*i) + 4]);
-                        Console.WriteLine("Cep: " + listg[(9*i) + 5]);
-                        Console.WriteLine("Complemento: " + listg[(9*i) + 6]);
-                        Console.WriteLine("Cidade: " + listg[(9*i) + 7]);
-                        Console.WriteLine("estado: " + listg[(9*i) + 8]);
-                    }
+                    /*for(int i = 0;i<listg[0].count;i++){
+                        Console.WriteLine("CPF: " + listg[0][i]);
+                        Console.WriteLine("nome: " + listg[1][i]);
+                        Console.WriteLine("rua: " + listg[2][i]);
+                        Console.WriteLine("n: " + listg[3][i]);
+                        Console.WriteLine("bairro: " + listg[4][i]);
+                        Console.WriteLine("Cep: " + listg[5][i]);
+                        Console.WriteLine("Complemento: " + listg[6][i]);
+                        Console.WriteLine("Cidade: " + listg[7][i]);
+                        Console.WriteLine("estado: " + listg[8][i]);
+                    }*/
 
-                    var liste = banco.Listagem(banco.tabelaEstabelecimento, conexao);
-                    Console.WriteLine(listg.Count);
+                    /*var liste = banco.Listagem(banco.tabelaEstabelecimento, conexao);
+                    Console.WriteLine(liste.Count);
 
-                    for(int i = 0;i < listg.Count/9;i++){
-                        Console.WriteLine("CNPJ: " + listg[(9*i)]);
-                        Console.WriteLine("razao social: " + listg[(9*i) + 1]);
-                        Console.WriteLine("rua: " + listg[(9*i) + 2]);
-                        Console.WriteLine("n: " + listg[(9*i) + 3]);
-                        Console.WriteLine("bairro: " + listg[(9*i) + 4]);
-                        Console.WriteLine("Cep: " + listg[(9*i) + 5]);
-                        Console.WriteLine("Complemento: " + listg[(9*i) + 6]);
-                        Console.WriteLine("Cidade: " + listg[(9*i) + 7]);
-                        Console.WriteLine("estado: " + listg[(9*i) + 8]);
-                    }
+                    for(int i = 0;i < liste.Count/9;i++){
+                        Console.WriteLine("CNPJ: " + liste[(9*i)]);
+                        Console.WriteLine("razao social: " + liste[(9*i) + 1]);
+                        Console.WriteLine("rua: " + liste[(9*i) + 2]);
+                        Console.WriteLine("n: " + liste[(9*i) + 3]);
+                        Console.WriteLine("bairro: " + liste[(9*i) + 4]);
+                        Console.WriteLine("Cep: " + liste[(9*i) + 5]);
+                        Console.WriteLine("Complemento: " + liste[(9*i) + 6]);
+                        Console.WriteLine("Cidade: " + liste[(9*i) + 7]);
+                        Console.WriteLine("estado: " + liste[(9*i) + 8]);
+                    }*/
                 }
             }
             catch (PostgresException erro)

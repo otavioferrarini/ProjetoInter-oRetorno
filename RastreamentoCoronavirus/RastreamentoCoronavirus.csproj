@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="NodaTime" Version="3.0.5" />
     <PackageReference Include="Npgsql" Version="5.0.2" />
+    <PackageReference Include="Npgsql.NodaTime" Version="5.0.2" />
   </ItemGroup>
 
 </Project>

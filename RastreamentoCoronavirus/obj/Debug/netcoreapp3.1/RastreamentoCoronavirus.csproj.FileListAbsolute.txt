@@ -14,3 +14,4 @@
 /home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.pdb
 /home/otavio/Documents/RastreamentoCoronavirus/obj/Debug/netcoreapp3.1/RastreamentoCoronavirus.genruntimeconfig.cache
 /home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/NodaTime.dll
+/home/otavio/Documents/RastreamentoCoronavirus/bin/Debug/netcoreapp3.1/Npgsql.NodaTime.dll
