@@ -27,18 +27,13 @@ CREATE TABLE checkin(
 	CPF char(11) NOT NULL,
 	CNPJ char(14) NOT NULL,
 	Data date NOT NULL,
-	Teste char(8) NOT NULL,
 	FOREIGN KEY (CPF) REFERENCES usuario(CPF),
 	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ)
 );
 CREATE TABLE reportado(
 	CPF char(11) NOT NULL,
-	CNPJ char(14) NOT NULL,
 	Data date NOT NULL,
-	CodCheckin serial NOT NULL,
 	FOREIGN KEY (CPF) REFERENCES usuario(CPF),
-	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ),
-	FOREIGN KEY (CodCheckin) REFERENCES checkin(CodCheckin),
 	CONSTRAINT cod_rep PRIMARY KEY (CPF, CNPJ)
 );
 CREATE TABLE tel_usuario(
@@ -56,5 +51,14 @@ CREATE TABLE tel_estabel(
 	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ) 
 );
 
-ALTER TABLE usuario ADD COLUMN CodCheckin serial
-REFERENCES checkin(CodCheckin);
+select c.CodCheckin
+from usuario as u join checkin as c
+on u.CPF = c.CPF;
+
+WITH localcont AS (SELECT cnpj FROM checkin WHERE (teste = 'Positivo'))
+SELECT c.cpf, e.RazaoSocial, l.cnpj
+FROM checkin c LEFT JOIN estabelecimento e 
+ON c.cnpj = e.cnpj 
+JOIN localcont l
+ON l.cnpj = c.cnpj
+WHERE (c.Teste = 'Negativo');
