@@ -31,10 +31,9 @@ CREATE TABLE checkin(
 	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ)
 );
 CREATE TABLE reportado(
-	CPF char(11) NOT NULL,
+	CPF char(11) PRIMARY KEY NOT NULL,
 	Data date NOT NULL,
-	FOREIGN KEY (CPF) REFERENCES usuario(CPF),
-	CONSTRAINT cod_rep PRIMARY KEY (CPF, CNPJ)
+	FOREIGN KEY (CPF) REFERENCES usuario(CPF)
 );
 CREATE TABLE tel_usuario(
 	CPF char(11) NOT NULL,
@@ -50,15 +49,3 @@ CREATE TABLE tel_estabel(
 	CONSTRAINT tel_es PRIMARY KEY (CNPJ,IDtelefone),
 	FOREIGN KEY (CNPJ) REFERENCES estabelecimento(CNPJ) 
 );
-
-select c.CodCheckin
-from usuario as u join checkin as c
-on u.CPF = c.CPF;
-
-WITH localcont AS (SELECT cnpj FROM checkin WHERE (teste = 'Positivo'))
-SELECT c.cpf, e.RazaoSocial, l.cnpj
-FROM checkin c LEFT JOIN estabelecimento e 
-ON c.cnpj = e.cnpj 
-JOIN localcont l
-ON l.cnpj = c.cnpj
-WHERE (c.Teste = 'Negativo');

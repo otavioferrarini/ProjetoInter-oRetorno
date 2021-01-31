@@ -74,7 +74,7 @@ namespace RastreamentoCoronavirus
 
         //metodo util para receber todos os CPFs ja registrados. retorna uma lista.
         public List<string> GetCPFs(NpgsqlConnection conn){
-            using (NpgsqlCommand comando = new NpgsqlCommand(@"SELECT cpf FROM usuario", conn))
+            using (NpgsqlCommand comando = new NpgsqlCommand("SELECT cpf FROM usuario", conn))
             using (NpgsqlDataReader reader = comando.ExecuteReader()){
                 List<string> cpfs = new List<string>();
                 while(reader.Read()){
@@ -86,7 +86,7 @@ namespace RastreamentoCoronavirus
 
         //metodo util para receber todos os CNPJs ja registrados. retorna uma lista.
         public List<string> GetCNPJs(NpgsqlConnection conn){
-            using (NpgsqlCommand comando = new NpgsqlCommand(@"SELECT cnpj FROM estabelecimento", conn))
+            using (NpgsqlCommand comando = new NpgsqlCommand("SELECT cnpj FROM estabelecimento", conn))
             using (NpgsqlDataReader reader = comando.ExecuteReader()){
                 List<string> cpfs = new List<string>();
                 while(reader.Read()){
@@ -101,13 +101,12 @@ namespace RastreamentoCoronavirus
             conn.TypeMapper.UseNodaTime();
             string[] data = vci[1].Split('-', 3);
             LocalDate dataComp = new LocalDate(int.Parse(data[0]), int.Parse(data[1]), int.Parse(data[2]));
-            string copyfrom = "COPY checkin (\"cpf\", \"cnpj\", \"data\", \"teste\") FROM STDIN (FORMAT BINARY)";
+            string copyfrom = "COPY checkin (\"cpf\", \"cnpj\", \"data\") FROM STDIN (FORMAT BINARY)";
             using (var writer = conn.BeginBinaryImport(copyfrom)){
                 writer.StartRow();
                 writer.Write(cpf);
                 writer.Write(vci[0]);
                 writer.Write(dataComp);
-                writer.Write(vci[2]);
                 writer.Complete();
                 Console.WriteLine("Cadastrado!");
             }
@@ -115,16 +114,14 @@ namespace RastreamentoCoronavirus
 
         /*metodo para executar a consulta de checar risco de contaminacao em um estabelecimento.
           retorna um dicionario com um cpf em risco como chave e a razao social do local como valor.
-          falta implementar a funcionalidade da data.*/
+          agora com comparacao de datas*/
         public Dictionary<string,string> ChecaRisco(NpgsqlConnection conn){
             Dictionary<string, string> emrisco = new Dictionary<string, string>();
-            string strcmd = @"WITH localcont AS (SELECT cnpj FROM checkin WHERE (teste = 'Positivo'))
-                SELECT c.cpf, e.RazaoSocial, l.cnpj
-                FROM checkin c LEFT JOIN estabelecimento e 
-                ON c.cnpj = e.cnpj 
-                JOIN localcont l
-                ON l.cnpj = c.cnpj
-                WHERE (c.Teste = 'Negativo');";
+            string strcmd = @"WITH rep AS (SELECT c.cpf, c.cnpj, r.data as datarep, c.data as datacheck FROM reportado r INNER JOIN checkin c ON c.cpf = r.cpf)
+                SELECT r.cpf, e.RazaoSocial
+                FROM rep r LEFT JOIN estabelecimento e 
+                ON r.cnpj = e.cnpj 
+                WHERE r.datacheck + interval '7 days' > r.datarep;";
             using (NpgsqlCommand comando = new NpgsqlCommand(strcmd, conn))
             using (NpgsqlDataReader reader = comando.ExecuteReader()){
                 while(reader.Read()){
@@ -136,17 +133,16 @@ namespace RastreamentoCoronavirus
 
         }
 
-        public void Reportar(List<string> vals, NpgsqlConnection conn){
+        //metodo para cadastro no reportar. recebe o cpf e a data no formato 'yyyy-mm-dd'
+        public void Reportar(string cpf, string dt, NpgsqlConnection conn){
             conn.TypeMapper.UseNodaTime();
-            string[] data = vals[2].Split('-', 3);
+            string[] data = dt.Split('-', 3);
             LocalDate dataComp = new LocalDate(int.Parse(data[0]), int.Parse(data[1]), int.Parse(data[2]));
-            string copyfrom = "COPY reportado (\"cpf\", \"cnpj\", \"data\", codcheckin) FROM STDIN (FORMAT BINARY)";
+            string copyfrom = "COPY reportado FROM STDIN (FORMAT BINARY)";
             using (var writer = conn.BeginBinaryImport(copyfrom)){
                 writer.StartRow();
-                writer.Write(vals[0]);
-                writer.Write(vals[1]);
+                writer.Write(cpf);
                 writer.Write(dataComp);
-                writer.Write(int.Parse(vals[3]), NpgsqlTypes.NpgsqlDbType.Integer);
                 writer.Complete();
                 Console.WriteLine("Cadastrado!");
             }
@@ -177,7 +173,8 @@ namespace RastreamentoCoronavirus
             }
         }
         
-        /*metodo para listar uma tabela inteira, retorna uma lista com cada valor sendo o registro de uma coluna da tabela.
+        /*metodo para listar uma tabela inteira, retorna um dicionario com cada chave representando uma coluna,
+          e cada valor sendo o registro desta coluna.
           caso o registro neja nulo, o registro vai pra lista como "NULL"*/
         public Dictionary<int, List<string>> Listagem(string tabela, NpgsqlConnection conn){
             Dictionary<int, List<string>> dout = new Dictionary<int, List<string>>();
@@ -216,6 +213,7 @@ namespace RastreamentoCoronavirus
             }
         }
 
+        //metodo para juntar todos os checkins em um dicionario. chave é o cpf, valor é o codcheckin
         public Dictionary<string,int> GetCodCheckins(NpgsqlConnection conn){
             Dictionary<string,int> dout = new Dictionary<string,int>();
             string strcmd = "SELECT u.cpf, c.codcheckin FROM usuario as u JOIN checkin as c on u.cpf = c.cpf;";
@@ -228,7 +226,6 @@ namespace RastreamentoCoronavirus
             }
             return dout;
         }
-        //public Dictionary<int,string> Positivos??(){}
         
     }
 }
